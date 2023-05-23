@@ -4,6 +4,9 @@ const gerenTarefas = {
     tarefas: []
 }
 
+
+//TAREFAS
+
 //Create
 function CriaTarefa(dados){
     gerenTarefas.tarefas.push(
@@ -18,15 +21,94 @@ function CriaTarefa(dados){
     });
 }   
 
-CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: 'HOJE', permissao: 'Apenas eu', categoria: 'Faculdade', criador: 'Pedro Junho'})
-console.log(gerenTarefas.tarefas)
+CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Grupo', categoria: 'Faculdade', criador: 'Pedro Junho'})
 
 //Read
-function leTarefa(){
+function leTodasTarefas(){
     return gerenTarefas.tarefas;
 }
 
-//Update
-function atualizaTarefa(){
+function leTarefa(nome= 'semvalor', prazo= 'semvalor'){
+    if (nome === 'semvalor' && prazo === 'semvalor')
+        return gerenTarefas.tarefas;
+    else{
+        if(nome!== 'semvalor'){
+            const tarefa = leTodasTarefas().filter((tarefas) => {
+                return tarefas.nome === nome;
+            });
+        }
+        if(prazo !== 'semvalor') {
+            const tarefaPrazo = leTodasTarefas().filter((tarefas) => {
+            return tarefas.prazo === prazo;
+            });
+        }
+    }
+}
+console.log(leTodasTarefas())
 
+//Update
+function atualizaTarefa(nome, newName, desc, prioridade, prazo, permissao, categoria){
+    const atualizar= leTodasTarefas().find((tarefas) =>{
+        return tarefas.nome === nome;
+    });
+    atualizar.nome = newName
+    atualizar.desc = desc
+    atualizar.prioridade = prioridade
+    atualizar.prazo = prazo
+    atualizar.permissao = permissao
+    atualizar.categoria = categoria
+}
+
+//Delete
+function apagaTarefa(nome){
+    const tarefa = leTodasTarefas().filter((tarefaAtual)=> {
+        return tarefaAtual.nome !== nome
+    });
+}
+
+
+//USUARIO
+
+//Create
+function CriaUsuario(dados){
+    gerenTarefas.usuarios.push(
+    {
+        nome: dados.nome,
+        cpf: dados.cpf,
+        email: dados.email,
+        numero: dados.numero
+    });
+}   
+
+CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
+
+//Read
+function leTodosUsuarios(){
+    return gerenTarefas.usuarios;
+}
+
+function leUsuario(nome){
+    const usuario = leTodosUsuarios().filter((usuarioAtual)=>{
+        return usuarioAtual.nome === nome
+    });
+}
+
+console.log(leTodosUsuarios())
+
+
+//Update
+function atualizaUsuario(nome, email, numero){
+    const atualizar= leTodosUsuarios().find((usuario) =>{
+        return usuario.nome === nome;
+    });
+
+    atualizar.email = email
+    atualizar.numero = numero
+}
+
+//Delete
+function apagaUsuario(nome){
+    const tarefa = leTodosUsuarios().filter((usuario)=> {
+        return usuario.nome !== nome
+    });
 }
