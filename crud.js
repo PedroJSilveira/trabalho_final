@@ -17,14 +17,22 @@ function CriaTarefa(dados){
         prazo: dados.prazo,
         permissao: dados.permissao,
         categoria: dados.categoria,
-        criador:dados.criador
+        criador: dados.criador
+
     });
+    if (dados.permissao === 'Grupo'){
+        var nome = prompt("Digite um nome: ");
+        var numero = prompt("Digite um número: ");
+        var email = prompt("Digite um email: "); 
+        CriaUsuario({nome: nome, numero: numero, email: email})
+    }
 }   
 
-CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Grupo', categoria: 'Faculdade', criador: 'Pedro Junho'})
+//CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Grupo', categoria: 'Faculdade', criador: 'Pedro Junho'})
 
 //Read
 function leTodasTarefas(){
+    gerenTarefas.tarefas.sort()
     return gerenTarefas.tarefas;
 }
 
@@ -80,7 +88,7 @@ function CriaUsuario(dados){
     });
 }   
 
-CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
+//CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
 
 //Read
 function leTodosUsuarios(){
