@@ -1,13 +1,34 @@
+// Elementos do HTML
+const divTarefa = document.querySelector('#tarefas')
+const newTarefa = document.querySelector('#form-tarefa')
+
+// Elementos do Formulário
+const tituloTarefa = document.querySelector('#titulo')
+const descTarefa = document.querySelector('#desc')
+const prazoTarefa = document.querySelector('#prazo')
+const priTarefa = document.querySelector('#prioridade')
+const permTarefa = document.querySelector('#permissao')
+const catTarefa = document.querySelector('#categoria')
+const criadorTarefa = document.querySelector('#criador')
+let todas = '';
+
 //IMPLEMENTAÇÃO DOS CRUDs
 const gerenTarefas = {
     usuarios: [],
     tarefas: []
 }
 
+mostraTarefas()
 
 //TAREFAS
-
 //Create
+newTarefa.addEventListener('submit', (e) => {
+    CriaTarefa({nome: tituloTarefa.value, desc: descTarefa.value, prioridade: priTarefa.value, prazo: prazoTarefa.value, permissao: permTarefa.value, categoria: catTarefa.value, criador: criadorTarefa.value})
+
+    newTarefa.reset() 
+})
+
+
 function CriaTarefa(dados){
     gerenTarefas.tarefas.push(
     {
@@ -26,11 +47,24 @@ function CriaTarefa(dados){
         var email = prompt("Digite um email: "); 
         CriaUsuario({nome: nome, numero: numero, email: email})
     }
+    mostraTarefas()
 }   
 
-//CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Grupo', categoria: 'Faculdade', criador: 'Pedro Junho'})
+CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Eu', categoria: 'Faculdade', criador: 'Pedro Junho'})
+
+CriaTarefa({nome: 'Trabalho 2', desc: 'Trabalho final de eng. software', prioridade: 10, prazo: '23/06', permissao: 'Eu', categoria: 'Faculdade', criador: 'Pedro Junho'})
 
 //Read
+function mostraTarefas(){
+    divTarefa.innerHTML = ''
+    todas = ''
+    for(let tarefa of leTodasTarefas()){
+        nome = tarefa.nome
+        todas = todas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><p class="card-text">${tarefa.desc}</p><p>${tarefa.prazo}</p><a href="#" class="btn btn-success">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('Trabalho')">Excluir</a></div></div>`
+    }
+    divTarefa.innerHTML = todas
+}
+
 function leTodasTarefas(){
     gerenTarefas.tarefas.sort()
     return gerenTarefas.tarefas;
@@ -40,7 +74,7 @@ function leTarefa(nome= 'semvalor', prazo= 'semvalor'){
     if (nome === 'semvalor' && prazo === 'semvalor')
         return gerenTarefas.tarefas;
     else{
-        if(nome!== 'semvalor'){
+        if(nome !== 'semvalor'){
             const tarefa = leTodasTarefas().filter((tarefas) => {
                 return tarefas.nome === nome;
             });
@@ -53,8 +87,13 @@ function leTarefa(nome= 'semvalor', prazo= 'semvalor'){
     }
 }
 console.log(leTodasTarefas())
+apagaTarefa('Trabalho')
+console.log(leTodasTarefas())
+
 
 //Update
+
+
 function atualizaTarefa(nome, newName, desc, prioridade, prazo, permissao, categoria){
     const atualizar= leTodasTarefas().find((tarefas) =>{
         return tarefas.nome === nome;

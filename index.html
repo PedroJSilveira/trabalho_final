@@ -9,7 +9,9 @@
   <body>
     <nav class="navbar bg-info">
       <div class="container-fluid">
-        <a class="navbar-brand">Navbar</a>
+        <a class="navbar-brand">
+          <img src="img/logo.png" alt="" width="10%">
+        </a>
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Pesquisar tarefa" aria-label="Search">
           <button class="btn btn-outline-light" type="submit">Pesquisar</button>
@@ -31,10 +33,10 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="form-tarefa" action="#">
               <div class="mb-3">
-                <label for="nome" class="form-label">Título da Tarefa</label>
-                <input type="text" class="form-control" id="nome" aria-describedby="emailHelp">
+                <label for="titulo" class="form-label">Título da Tarefa</label>
+                <input type="text" class="form-control" id="titulo" aria-describedby="emailHelp">
               </div>
               <div class="mb-3">
                 <label for="desc" class="form-label">Descrição da atividade</label>
@@ -48,9 +50,9 @@
                 <label for="prioridade" class="form-label">Prioridade</label>
                 <select class="form-select" id="prioridade" required>
                   <option selected disabled value="">Escolha...</option>
-                  <option>Alta</option>
-                  <option>Média</option>
-                  <option>Baixa</option>
+                  <option value ="Alta">Alta</option>
+                  <option value ="Média">Média</option>
+                  <option value = "Baixa">Baixa</option>
                 </select>
               </div>
               <div class="mb-3">
@@ -61,16 +63,16 @@
                 <label for="categoria" class="form-label">Categoria</label>
                 <select class="form-select" id="categoria" required>
                   <option selected disabled value="">Escolha...</option>
-                  <option>UNIFEI</option>
-                  <option>Pessoal</option>
-                  <option>DACOMP</option>
+                  <option value="UNIFEI">UNIFEI</option>
+                  <option value="Pessoal">Pessoal</option>
+                  <option value="DACOMP">DACOMP</option>
                 </select>
               </div>
               <div class="mb-3">
                 <label for="criador" class="form-label">Criador(a)</label>
                 <input type="text" class="form-control" id="criador">
               </div>
-              <button type="submit" class="btn btn-primary">Adicionar Tarefa</button>
+              <button type="submit" data-bs-dismiss="modal" class="btn btn-primary">Adicionar Tarefa</button>
             </form>
           </div>
           <div class="modal-footer">
@@ -80,14 +82,66 @@
       </div>
     </div>
 
-    <div class="d-flex card" style="width: 18rem;">
-      <div class="card-body">
-        <h5 class="card-title">Título da Tarefa</h5>
-        <p class="card-text">Descrição da tarefa</p>
-        <a href="#" class="btn btn-primary">Finalizada</a>
+    <div id="tarefas"></div>
+
+    <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="editarModalLabel">Editar Tarefa</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="form-tarefa" action="#">
+              <div class="mb-3">
+                <label for="titulo" class="form-label">Título da Tarefa</label>
+                <input type="text" class="form-control" id="titulo" aria-describedby="emailHelp">
+              </div>
+              <div class="mb-3">
+                <label for="desc" class="form-label">Descrição da atividade</label>
+                <input type="text" class="form-control" id="desc">
+              </div>
+              <div class="mb-3">
+                <label for="prazo" class="form-label">Prazo</label>
+                <input type="date" class="form-control" id="prazo">
+              </div>
+              <div class="mb-3">
+                <label for="prioridade" class="form-label">Prioridade</label>
+                <select class="form-select" id="prioridade" required>
+                  <option selected disabled value="">Escolha...</option>
+                  <option value ="Alta">Alta</option>
+                  <option value ="Média">Média</option>
+                  <option value = "Baixa">Baixa</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="permissao" class="form-label">Usuário com permissão</label>
+                <input type="text" class="form-control" id="permissao">
+              </div>
+              <div class="mb-3">
+                <label for="categoria" class="form-label">Categoria</label>
+                <select class="form-select" id="categoria" required>
+                  <option selected disabled value="">Escolha...</option>
+                  <option value="UNIFEI">UNIFEI</option>
+                  <option value="Pessoal">Pessoal</option>
+                  <option value="DACOMP">DACOMP</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="criador" class="form-label">Criador(a)</label>
+                <input type="text" class="form-control" id="criador">
+              </div>
+              <button type="submit" data-bs-dismiss="modal" class="btn btn-primary">Salvar</button>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script src="crud.js"></script>
   </body>
 </html>
