@@ -1,0 +1,19 @@
+#tarefas{
+  padding: 5rem;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+#div-concluidas{
+  padding: 5rem;
+}
+
+.card{
+  margin: 1rem;
+}
+
+.botoes{
+  display: flex;
+  justify-content: space-evenly;
+}
