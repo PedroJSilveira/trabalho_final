@@ -1,3 +1,11 @@
+.notificacoes{
+  margin: 1rem;
+}
+
+.notificacoes li{
+  padding: 0.5rem;
+}
+
 #tarefas{
   padding: 5rem;
   display: flex;
@@ -15,5 +23,13 @@
 
 .botoes{
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
+}
+
+.flags{
+  margin-bottom: 1rem;
+}
+
+span{
+  margin-right: 0.5rem;
 }

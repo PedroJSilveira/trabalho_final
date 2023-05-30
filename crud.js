@@ -4,6 +4,8 @@ const divTarefaConcluida = document.querySelector('#tarefas-concluidas')
 const newTarefa = document.querySelector('#form-tarefa')
 const updateTarefa = document.querySelector('#form-editar-tarefa')
 const btnConcluida = document.querySelector('#tar-concluidas')
+const dropNotifica = document.querySelector('#notificacoes')
+const qtdNot = document.querySelector('#qtd-not')
 
 // Elementos do Formulário de Criação
 const tituloTarefa = document.querySelector('#titulo')
@@ -26,6 +28,7 @@ const criadorEd = document.querySelector('#criadorEd')
 
 let nConcluidas = '';
 let concluidas = '';
+let notifica = '';
 
 //IMPLEMENTAÇÃO DOS CRUDs
 const gerenTarefas = {
@@ -64,33 +67,96 @@ function CriaTarefa(dados){
         CriaUsuario({nome: nome, numero: numero, email: email})
     }
     mostraTarefas()
-}   
+} 
 
-CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
+CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-06-04', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
 
-CriaTarefa({nome: 'Trabalho 2', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
+CriaTarefa({nome: 'Trabalho Final', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-05-26', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
 
-CriaTarefa({nome: 'Trabalho 4', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
-
-CriaTarefa({nome: 'Trabalho 3', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
-
-CriaTarefa({nome: 'Trabalho 7', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
-
-CriaTarefa({nome: 'Trabalho 8', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
-
-CriaTarefa({nome: 'Trabalho 0', desc: 'Trabalho final de eng. software', prioridade: 'Baixa', prazo: '2023-06-23', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Pedro Junho'})
+CriaTarefa({nome: 'Trabalho Final  1', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-06-22', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
 
 //Read
+function notificacoes(){
+    dropNotifica.innerHTML = ''
+    notifica = ''
+    let qtd = 0
+    let dados = ''
+
+    for(let not of leTodasTarefas()){
+        if(not.concluida == false){
+            dados = verificaPrazo(not.prazo)
+            if(dados.cor == 'text-bg-danger' || dados.cor == 'text-bg-warning'){
+                notifica = notifica + `<li><a><p>${not.nome}</p><span class="badge rounded-pill ${dados.cor}">${not.prazo} | ${dados.msg}</span></a></li>`
+                notifica = notifica + `<hr>`
+                qtd++
+            }
+        }
+
+    }
+
+    if(notifica == ''){
+        dropNotifica.innerHTML = '<p>Sem notificações...</p>'
+    }else{
+        dropNotifica.innerHTML = notifica
+    }
+
+    qtdNot.innerText = qtd
+}
+
 function mostraTarefas(){
     divTarefa.innerHTML = ''
     nConcluidas = ''
+    let dadosPrazo = ''
     for(let tarefa of leTodasTarefas()){
         if(tarefa.concluida == false){
+            dadosPrazo = verificaPrazo(tarefa.prazo)
+            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill text-bg-primary">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
 
-            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><p class="card-text">${tarefa.desc}</p><p class="prazo">${tarefa.prazo}</p><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
         }
     }
-    divTarefa.innerHTML = nConcluidas
+    if(nConcluidas == ''){
+        divTarefa.innerHTML = '<h2>Sem tarefas...</h2>'
+    }else{
+        divTarefa.innerHTML = nConcluidas
+    }
+
+    notificacoes()
+}
+
+function corPrioridade(prioridade){
+    if(prioridade == 'Alta'){
+        return 'text-bg-danger'
+    }
+
+    if(prioridade == 'Média'){
+        return 'text-bg-warning'
+    }
+
+    if(prioridade == 'Baixa'){
+        return 'text-bg-success'
+    }
+}
+
+function verificaPrazo(prazo){
+    var date1 = new Date(prazo)
+    var today = new Date(Date.now())
+
+    var timeDiff = Math.abs(date1.getTime() - today.getTime())
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24))
+
+    if(date1.getTime() < today.getTime()){
+        return {cor: 'text-bg-danger', msg: `${diffDays} dias atrasado!`}
+    }
+
+    if(diffDays <= 7 && diffDays >= 3){
+        return {cor: 'text-bg-warning', msg: `Faltam ${diffDays} dias!`}
+    }
+
+    if(diffDays <= 2){
+        return {cor: 'text-bg-danger', msg: `Faltam ${diffDays} dias!`}
+    }
+
+    return {cor: 'text-bg-success', msg: `Faltam ${diffDays} dias...`}
 }
 
 function mostraConcluidas(){
@@ -98,10 +164,15 @@ function mostraConcluidas(){
     concluidas = ''
     for(let con of leTodasTarefas()){
         if(con.concluida == true){
-            concluidas = concluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${con.nome}</h5><p class="card-text">${con.desc}</p><a href="#" class="btn btn-success" onclick="voltar('${con.nome}')">Voltar</a></div></div>`
+            concluidas = concluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${con.nome}</h5><span class="badge rounded-pill text-bg-primary">${con.categoria}</span><p class="card-text">${con.desc}</p><a href="#" class="btn btn-success" onclick="voltar('${con.nome}')">Voltar</a></div></div>`
         }
     }
-    divTarefaConcluida.innerHTML = concluidas
+
+    if(concluidas == ''){
+        divTarefaConcluida.innerHTML = '<p>Nenhuma tarefa concluída...</p>'
+    }else{
+        divTarefaConcluida.innerHTML = concluidas
+    }
 }
 
 function voltar(nome){
