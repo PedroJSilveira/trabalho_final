@@ -31,58 +31,72 @@ let concluidas = '';
 let notifica = '';
 
 //IMPLEMENTAÇÃO DOS CRUDs
-const gerenTarefas = {
-    usuarios: [],
-    tarefas: []
-}
-
-mostraTarefas()
+const db_user = [];
+const dbTask = [];
 
 //TAREFAS
 //Create
-newTarefa.addEventListener('submit', (e) => {
-    CriaTarefa({nome: tituloTarefa.value, desc: descTarefa.value, prioridade: priTarefa.value, prazo: prazoTarefa.value, permissao: permTarefa.value, categoria: catTarefa.value, criador: criadorTarefa.value})
 
+const tempTask = {
+    nome: 'Trabalho',
+    desc: 'Trabalho final de eng de software',
+    prioridade: 'Alta',
+    prazo: '2023-06-10',
+    permissao: 'Eu',
+    categoria: 'UNIFEI',
+    criador: 'Ana Maísa',
+    concluida: false
+}
+
+const getTasks = () => JSON.parse(localStorage.getItem('dbTasks')) ?? []
+const setTasks = (dbTasks) =>  localStorage.setItem("dbTasks", JSON.stringify(dbTasks))
+
+newTarefa.addEventListener('submit', (e) => {
+    createTask({nome: tituloTarefa.value, desc: descTarefa.value, prioridade: priTarefa.value, prazo: prazoTarefa.value, permissao: permTarefa.value, categoria: catTarefa.value, criador: criadorTarefa.value, concluida: false})
+
+    mostraTarefas()
     newTarefa.reset() 
 })
 
 
-function CriaTarefa(dados){
-    gerenTarefas.tarefas.push(
-    {
-        nome: dados.nome,
-        desc: dados.desc,
-        prioridade: dados.prioridade,
-        prazo: dados.prazo,
-        permissao: dados.permissao,
-        categoria: dados.categoria,
-        criador: dados.criador,
-        concluida:  false
+const createTask = (task) => {
+    dbTasks = getTasks()
+    dbTasks.push(task)
+   setTasks(dbTasks)
+}
 
-    });
-    if (dados.permissao === 'Grupo'){
-        var nome = prompt("Digite um nome: ");
-        var numero = prompt("Digite um número: ");
-        var email = prompt("Digite um email: "); 
-        CriaUsuario({nome: nome, numero: numero, email: email})
-    }
-    mostraTarefas()
-} 
-
-CriaTarefa({nome: 'Trabalho', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-06-04', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
-
-CriaTarefa({nome: 'Trabalho Final', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-05-26', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
-
-CriaTarefa({nome: 'Trabalho Final  1', desc: 'Trabalho final de eng. software', prioridade: 'Alta', prazo: '2023-06-22', permissao: 'Eu', categoria: 'UNIFEI', criador: 'Ana Maísa'})
 
 //Read
+const readTasks = () => getTasks()
+
+function mostraTarefas(){
+    divTarefa.innerHTML = ''
+    nConcluidas = ''
+    let dadosPrazo = ''
+    for(let tarefa of readTasks()){
+        if(tarefa.concluida == false){
+            dadosPrazo = verificaPrazo(tarefa.prazo)
+            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill text-bg-primary">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
+        }
+    }
+    if(nConcluidas == ''){
+        divTarefa.innerHTML = '<h2>Sem tarefas...</h2>'
+    }else{
+        divTarefa.innerHTML = nConcluidas
+    }
+
+    notificacoes()
+}
+
+mostraTarefas()
+
 function notificacoes(){
     dropNotifica.innerHTML = ''
     notifica = ''
     let qtd = 0
     let dados = ''
 
-    for(let not of leTodasTarefas()){
+    for(let not of readTasks()){
         if(not.concluida == false){
             dados = verificaPrazo(not.prazo)
             if(dados.cor == 'text-bg-danger' || dados.cor == 'text-bg-warning'){
@@ -103,25 +117,6 @@ function notificacoes(){
     qtdNot.innerText = qtd
 }
 
-function mostraTarefas(){
-    divTarefa.innerHTML = ''
-    nConcluidas = ''
-    let dadosPrazo = ''
-    for(let tarefa of leTodasTarefas()){
-        if(tarefa.concluida == false){
-            dadosPrazo = verificaPrazo(tarefa.prazo)
-            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill text-bg-primary">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
-
-        }
-    }
-    if(nConcluidas == ''){
-        divTarefa.innerHTML = '<h2>Sem tarefas...</h2>'
-    }else{
-        divTarefa.innerHTML = nConcluidas
-    }
-
-    notificacoes()
-}
 
 function corPrioridade(prioridade){
     if(prioridade == 'Alta'){
@@ -162,7 +157,7 @@ function verificaPrazo(prazo){
 function mostraConcluidas(){
     divTarefaConcluida.innerHTML = ''
     concluidas = ''
-    for(let con of leTodasTarefas()){
+    for(let con of readTasks()){
         if(con.concluida == true){
             concluidas = concluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${con.nome}</h5><span class="badge rounded-pill text-bg-primary">${con.categoria}</span><p class="card-text">${con.desc}</p><a href="#" class="btn btn-success" onclick="voltar('${con.nome}')">Voltar</a></div></div>`
         }
@@ -175,48 +170,32 @@ function mostraConcluidas(){
     }
 }
 
+
+
 function voltar(nome){
-    let tarefa = leTodasTarefas().filter(tarefaAtual => tarefaAtual.nome == nome)
+    let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
     tarefa[0].concluida = false
+
+    atualizaTarefa(tarefa[0].nome, tarefa[0])
+
     mostraTarefas()
     mostraConcluidas()
 }
 
 function concluida(nome){
-    let tarefa = leTodasTarefas().filter(tarefaAtual => tarefaAtual.nome == nome)
+    let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
+    
     tarefa[0].concluida = true
+
+    atualizaTarefa(tarefa[0].nome, tarefa[0])
     mostraTarefas()
     mostraConcluidas()
 }
 
 
-function leTodasTarefas(){
-    gerenTarefas.tarefas.sort()
-    return gerenTarefas.tarefas;
-}
-
-function leTarefa(nome= 'semvalor', prazo= 'semvalor'){
-    if (nome === 'semvalor' && prazo === 'semvalor')
-        return gerenTarefas.tarefas;
-    else{
-        if(nome !== 'semvalor'){
-            const tarefa = leTodasTarefas().filter((tarefas) => {
-                return tarefas.nome === nome;
-            });
-        }
-        if(prazo !== 'semvalor') {
-            const tarefaPrazo = leTodasTarefas().filter((tarefas) => {
-            return tarefas.prazo === prazo;
-            });
-        }
-    }
-}
-console.log(leTodasTarefas())
-
-
 //Update
 function formUpTarefa(nome) {
-    let tarefa = leTodasTarefas().filter(tarefaAtual => tarefaAtual.nome == nome)
+    let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
 
     edTarefa.innerText = tarefa[0].nome
     tituloEd.value = tarefa[0].nome
@@ -230,25 +209,46 @@ function formUpTarefa(nome) {
 }
 
 updateTarefa.addEventListener('submit', (e) => {
-    atualizaTarefa(edTarefa.innerText, tituloEd.value, descEd.value, priEd.value, prazoEd.value, permEd.value, catEd.value)
+    const newTask = {
+        nome: tituloEd.value,
+        desc: descEd.value,
+        prioridade: priEd.value,
+        prazo: prazoEd.value,
+        permissao: permEd.value,
+        categoria: catEd.value,
+        criador: criadorEd.value,
+        concluida: false
+    }
+
+    atualizaTarefa(edTarefa.innerText, newTask)
 })
 
-function atualizaTarefa(nome, newName, desc, prioridade, prazo, permissao, categoria){
-    let atualizar = leTodasTarefas().find((tarefas) => tarefas.nome == nome)
+function findIndex(list, obj) {
+    return list.findIndex((current) =>
+        Object.keys(current).every((key) => obj[key] === current[key])
+    );
+}
 
-    atualizar.nome = newName
-    atualizar.desc = desc
-    atualizar.prioridade = prioridade
-    atualizar.prazo = prazo
-    atualizar.permissao = permissao
-    atualizar.categoria = categoria
+
+function atualizaTarefa(nome, newTask){
+    let atualizar = readTasks().find((tarefas) => tarefas.nome == nome)
+    const index = findIndex(readTasks(), atualizar)
+
+    dbTasks = readTasks()
+    dbTasks[index] = newTask
+    setTasks(dbTasks)
 
     mostraTarefas()
 }
 
 //Delete
 function apagaTarefa(nome){
-    gerenTarefas.tarefas = leTodasTarefas().filter(tarefaAtual => tarefaAtual.nome != nome);
+    let excluir = readTasks().find((tarefas) => tarefas.nome == nome)
+    const index = findIndex(readTasks(), excluir)
+
+    dbTasks = readTasks()
+    dbTasks.splice(index, 1)
+    setTasks(dbTasks)
 
     mostraTarefas()
 }
@@ -257,45 +257,45 @@ function apagaTarefa(nome){
 //USUARIO
 
 //Create
-function CriaUsuario(dados){
-    gerenTarefas.usuarios.push(
-    {
-        nome: dados.nome,
-        cpf: dados.cpf,
-        email: dados.email,
-        numero: dados.numero
-    });
-}   
+// function CriaUsuario(dados){
+//     gerenTarefas.usuarios.push(
+//     {
+//         nome: dados.nome,
+//         cpf: dados.cpf,
+//         email: dados.email,
+//         numero: dados.numero
+//     });
+// }   
 
-//CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
+// //CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
 
-//Read
-function leTodosUsuarios(){
-    return gerenTarefas.usuarios;
-}
+// //Read
+// function leTodosUsuarios(){
+//     return gerenTarefas.usuarios;
+// }
 
-function leUsuario(nome){
-    const usuario = leTodosUsuarios().filter((usuarioAtual)=>{
-        return usuarioAtual.nome === nome
-    });
-}
+// function leUsuario(nome){
+//     const usuario = leTodosUsuarios().filter((usuarioAtual)=>{
+//         return usuarioAtual.nome === nome
+//     });
+// }
 
-console.log(leTodosUsuarios())
+// console.log(leTodosUsuarios())
 
 
-//Update
-function atualizaUsuario(nome, email, numero){
-    const atualizar= leTodosUsuarios().find((usuario) =>{
-        return usuario.nome === nome;
-    });
+// //Update
+// function atualizaUsuario(nome, email, numero){
+//     const atualizar= leTodosUsuarios().find((usuario) =>{
+//         return usuario.nome === nome;
+//     });
 
-    atualizar.email = email
-    atualizar.numero = numero
-}
+//     atualizar.email = email
+//     atualizar.numero = numero
+// }
 
-//Delete
-function apagaUsuario(nome){
-    const tarefa = leTodosUsuarios().filter((usuario)=> {
-        return usuario.nome !== nome
-    });
-}
+// //Delete
+// function apagaUsuario(nome){
+//     const tarefa = leTodosUsuarios().filter((usuario)=> {
+//         return usuario.nome !== nome
+//     });
+// }
