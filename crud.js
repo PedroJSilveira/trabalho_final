@@ -14,7 +14,6 @@ const prazoTarefa = document.querySelector('#prazo')
 const priTarefa = document.querySelector('#prioridade')
 const permTarefa = document.querySelector('#permissao')
 const catTarefa = document.querySelector('#categoria')
-const criadorTarefa = document.querySelector('#criador')
 
 // Elementos do formulário de Edição
 const edTarefa = document.querySelector('#edTarefa')
@@ -25,6 +24,17 @@ const priEd = document.querySelector('#prioridadeEd')
 const permEd = document.querySelector('#permissaoEd')
 const catEd = document.querySelector('#categoriaEd')
 const criadorEd = document.querySelector('#criadorEd')
+
+
+// Nome do usuário 
+const logado = document.querySelector("#logado");
+const user = document.querySelector("#criador");
+const userLogado = JSON.parse(localStorage.getItem("userLogado"));
+const usuario = userLogado.nome;
+
+logado.innerHTML = `Olá ${usuario}`;
+user.innerHTML = usuario;      // Nome do Criador da Tarefa
+
 
 let nConcluidas = '';
 let concluidas = '';
@@ -37,22 +47,14 @@ const dbTask = [];
 //TAREFAS
 //Create
 
-const tempTask = {
-    nome: 'Trabalho',
-    desc: 'Trabalho final de eng de software',
-    prioridade: 'Alta',
-    prazo: '2023-06-10',
-    permissao: 'Eu',
-    categoria: 'UNIFEI',
-    criador: 'Ana Maísa',
-    concluida: false
-}
+
+
 
 const getTasks = () => JSON.parse(localStorage.getItem('dbTasks')) ?? []
 const setTasks = (dbTasks) =>  localStorage.setItem("dbTasks", JSON.stringify(dbTasks))
 
 newTarefa.addEventListener('submit', (e) => {
-    createTask({nome: tituloTarefa.value, desc: descTarefa.value, prioridade: priTarefa.value, prazo: prazoTarefa.value, permissao: permTarefa.value, categoria: catTarefa.value, criador: criadorTarefa.value, concluida: false})
+    createTask({nome: tituloTarefa.value, desc: descTarefa.value, prioridade: priTarefa.value, prazo: prazoTarefa.value, permissao: permTarefa.value, categoria: catTarefa.value,criador: usuario, concluida: false})
 
     mostraTarefas()
     newTarefa.reset() 
@@ -193,9 +195,14 @@ function concluida(nome){
 }
 
 
+
 //Update
+
 function formUpTarefa(nome) {
     let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
+
+
+     console.log("Aqui 1");
 
     edTarefa.innerText = tarefa[0].nome
     tituloEd.value = tarefa[0].nome
@@ -204,11 +211,17 @@ function formUpTarefa(nome) {
     prazoEd.value = tarefa[0].prazo
     permEd.value = tarefa[0].permissao
     catEd.value = tarefa[0].categoria
-    criadorEd.value = tarefa[0].criador
+    criadorEd.innerHTML = tarefa[0].criador
+    
 
 }
+ 
 
 updateTarefa.addEventListener('submit', (e) => {
+
+
+    console.log("Aqui 2");
+
     const newTask = {
         nome: tituloEd.value,
         desc: descEd.value,
@@ -216,11 +229,13 @@ updateTarefa.addEventListener('submit', (e) => {
         prazo: prazoEd.value,
         permissao: permEd.value,
         categoria: catEd.value,
-        criador: criadorEd.value,
+        criador:criadorEd.innerHTML,
         concluida: false
     }
 
+
     atualizaTarefa(edTarefa.innerText, newTask)
+
 })
 
 function findIndex(list, obj) {
@@ -228,7 +243,6 @@ function findIndex(list, obj) {
         Object.keys(current).every((key) => obj[key] === current[key])
     );
 }
-
 
 function atualizaTarefa(nome, newTask){
     let atualizar = readTasks().find((tarefas) => tarefas.nome == nome)
@@ -240,6 +254,7 @@ function atualizaTarefa(nome, newTask){
 
     mostraTarefas()
 }
+
 
 //Delete
 function apagaTarefa(nome){
