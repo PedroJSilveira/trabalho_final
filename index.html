@@ -32,12 +32,11 @@
       </ul>
     </div>
     
+    <!-- Ações -->
     <div class="d-grid gap-2 d-flex col-8 mx-auto">
-      <button type="button" class="btn btn-info col-4" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="carregaCategorias('criar')">Adicionar Tarefa</button>
+      <button type="button" class="btn btn-info col-6" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="carregaCategorias('criar')">Adicionar Tarefa</button>
 
-      <button type="button" id="confCat" class="btn btn-info col-4" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample">Configurar Categorias</button>
-
-      <button type="button" class="btn btn-info col-4" data-bs-toggle="modal" data-bs-target="#exampleModal">Configurar grupos</button>
+      <button type="button" id="confCat" class="btn btn-info col-6" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample">Configurar Categorias</button>
     </div>
 
     <!-- Adicionar tarefas -->
@@ -103,7 +102,7 @@
       </div>
       <div class="offcanvas-body">
         <div>
-          <div class="list-group">
+          <div id="conf-cat" class="list-group">
           </div>
         </div>
         <button type="button" class="btn btn-info col-12" data-bs-toggle="modal" data-bs-target="#novaCategoria">Adicionar Categoria</button>
@@ -171,6 +170,7 @@
 
     <div id="tarefas"></div>
 
+    <!-- Editar Tarefa -->
     <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -208,7 +208,7 @@
               <div class="mb-3">
                 <label for="categoriaEd" class="form-label">Categoria</label>
                 <select class="form-select" id="categoriaEd" required>
-
+                  <option value="Sem Categoria">Sem Categoria</option>
                 </select>
               </div>
               <div class="mb-3">
