@@ -7,6 +7,17 @@ const btnConcluida = document.querySelector('#tar-concluidas')
 const dropNotifica = document.querySelector('#notificacoes')
 const qtdNot = document.querySelector('#qtd-not')
 
+// Categorias
+const confCat = document.querySelector('#confCat')
+const formCat = document.querySelector('#form-categoria')
+const listCat = document.querySelector('.list-group')
+const nomeCat = document.querySelector('#nome')
+const corCat = document.querySelector('#cores')
+const formEdCat = document.querySelector('#form-ed-categoria')
+const edNomeCat = document.querySelector('#edNome')
+const edCorCat = document.querySelector('#edCores')
+const edCategoria = document.querySelector('#edCategoria')
+
 // Elementos do Formulário de Criação
 const tituloTarefa = document.querySelector('#titulo')
 const descTarefa = document.querySelector('#desc')
@@ -42,14 +53,127 @@ let notifica = '';
 
 //IMPLEMENTAÇÃO DOS CRUDs
 const db_user = [];
-const dbTask = [];
+
+// CATEGORIAS
+// Create
+
+const getCat = () => JSON.parse(localStorage.getItem('dbCat')) ?? []
+const setCat = (dbCat) =>  localStorage.setItem("dbCat", JSON.stringify(dbCat))
+
+formCat.addEventListener('submit', (e) => {
+    createCat({nome: nomeCat.value, cor: corCat.value})
+
+    mostraCategorias()
+    formCat.reset() 
+})
+
+const createCat = (categoria) => {
+    dbCat = getCat()
+    dbCat.push(categoria)
+    console.log(dbCat)
+    setCat(dbCat)
+}
+
+// Read
+const readCategorias = () => getCat()
+
+confCat.addEventListener('click', (e) => {
+    mostraCategorias()
+})
+
+function mostraCategorias(){
+    listCat.innerHTML = ''
+    let categorias = ''
+
+    for(let categoria of readCategorias()){
+        if(categoria.nome != 'Sem Categoria'){
+            categorias = categorias + `<button type="button" style="background-color: ${categoria.cor}; display: flex;" class="list-group-item list-group-item-action"><span data-bs-toggle="modal" data-bs-target="#edCategoriaModal" class="editar" onclick="formUpCat('${categoria.nome}')"><i class="fa-sharp fa-solid fa-pen"></i></span><span class="lixo" onclick="apagaCategoria('${categoria.nome}')"><i class="fa-sharp fa-solid fa-trash"></i></span>${categoria.nome}</button>`
+        }
+    }
+
+    if(categorias == ''){
+        listCat.innerHTML = '<h2>Sem Categoria...</h2>'
+    }else{
+        listCat.innerHTML = categorias
+    }
+}
+
+function corCategoria(nome){
+    let categ = readCategorias().filter(catg => catg.nome == nome.trim())
+  
+    return categ[0].cor
+}
+
+// Update
+function formUpCat(nome){
+    let cat = readCategorias().filter(catAtual => catAtual.nome == nome)
+
+    edCategoria.innerText = cat[0].nome
+    edNomeCat.value = cat[0].nome
+    edCorCat.value = cat[0].cor
+}
+
+formEdCat.addEventListener('submit', (e) => {
+
+    const newCat = {
+        nome: edNomeCat.value,
+        cor: edCorCat.value
+    }
+
+
+    atualizaCategoria(edCategoria.innerText, newCat)
+
+})
+
+function atualizaCategoria(nome, newCat){
+    let atualizar = readCategorias().find((categoria) => categoria.nome == nome)
+    const index = findIndex(readCategorias(), atualizar)
+
+    dbCat = readCategorias()
+    dbCat[index] = newCat
+    setCat(dbCat)
+
+    mostraCategorias()
+}
+
+//Delete
+function apagaCategoria(nome){
+    let teste = 'Sem Cat'
+    console.log(teste.trim())
+
+    for(let trf of readTasks()){
+        console.log(trf.categoria)
+        if(trf.categoria.trim() == nome){
+            const newTask = {
+                nome: trf.nome,
+                desc: trf.desc,
+                prioridade: trf.prioridade,
+                prazo: trf.prazo,
+                permissao: trf.permissao,
+                categoria: 'Sem Categoria',
+                criador: trf.criador,
+                concluida: trf.concluida
+            }
+            console.log('sem cat')
+            atualizaTarefa(trf.nome, newTask)
+        }
+    }
+    
+
+    let excluir = readCategorias().find((categoria) => categoria.nome == nome)
+
+    const index = findIndex(readCategorias(), excluir)
+
+    dbCat = readCategorias()
+    dbCat.splice(index, 1)
+    setCat(dbCat)
+
+    mostraCategorias()
+    mostraTarefas()
+}
 
 //TAREFAS
 //Create
-
-
-
-
 const getTasks = () => JSON.parse(localStorage.getItem('dbTasks')) ?? []
 const setTasks = (dbTasks) =>  localStorage.setItem("dbTasks", JSON.stringify(dbTasks))
 
@@ -60,11 +184,27 @@ newTarefa.addEventListener('submit', (e) => {
     newTarefa.reset() 
 })
 
-
 const createTask = (task) => {
     dbTasks = getTasks()
     dbTasks.push(task)
    setTasks(dbTasks)
+}
+
+function carregaCategorias(tipo){
+    let div
+    if (tipo == 'criar'){
+        div = catTarefa
+    }else{
+        div = catEd
+    }
+
+    div.innerHTML = ''
+    let cats = '<option selected disabled value="">Escolha...</option>'
+    for(let categoria of readCategorias()){
+        cats = cats + `<option value="${categoria.nome} ">${categoria.nome}</option>`
+    }
+   
+    div.innerHTML = cats
 }
 
 
@@ -78,7 +218,7 @@ function mostraTarefas(){
     for(let tarefa of readTasks()){
         if(tarefa.concluida == false){
             dadosPrazo = verificaPrazo(tarefa.prazo)
-            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill text-bg-primary">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
+            nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill" style="background-color: ${corCategoria(tarefa.categoria)}">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}'); carregaCategorias('editar')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
         }
     }
     if(nConcluidas == ''){
@@ -118,7 +258,6 @@ function notificacoes(){
 
     qtdNot.innerText = qtd
 }
-
 
 function corPrioridade(prioridade){
     if(prioridade == 'Alta'){
@@ -172,8 +311,6 @@ function mostraConcluidas(){
     }
 }
 
-
-
 function voltar(nome){
     let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
     tarefa[0].concluida = false
@@ -195,14 +332,11 @@ function concluida(nome){
 }
 
 
-
 //Update
 
 function formUpTarefa(nome) {
     let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
 
-
-     console.log("Aqui 1");
 
     edTarefa.innerText = tarefa[0].nome
     tituloEd.value = tarefa[0].nome
@@ -215,12 +349,8 @@ function formUpTarefa(nome) {
     
 
 }
- 
 
 updateTarefa.addEventListener('submit', (e) => {
-
-
-    console.log("Aqui 2");
 
     const newTask = {
         nome: tituloEd.value,
@@ -268,49 +398,3 @@ function apagaTarefa(nome){
     mostraTarefas()
 }
 
-
-//USUARIO
-
-//Create
-// function CriaUsuario(dados){
-//     gerenTarefas.usuarios.push(
-//     {
-//         nome: dados.nome,
-//         cpf: dados.cpf,
-//         email: dados.email,
-//         numero: dados.numero
-//     });
-// }   
-
-// //CriaUsuario({nome: 'Pedro Junho', cpf: '111222', email: 'xxxxxx@xxxx.com', numero: 'xxxxx-xxxx'})
-
-// //Read
-// function leTodosUsuarios(){
-//     return gerenTarefas.usuarios;
-// }
-
-// function leUsuario(nome){
-//     const usuario = leTodosUsuarios().filter((usuarioAtual)=>{
-//         return usuarioAtual.nome === nome
-//     });
-// }
-
-// console.log(leTodosUsuarios())
-
-
-// //Update
-// function atualizaUsuario(nome, email, numero){
-//     const atualizar= leTodosUsuarios().find((usuario) =>{
-//         return usuario.nome === nome;
-//     });
-
-//     atualizar.email = email
-//     atualizar.numero = numero
-// }
-
-// //Delete
-// function apagaUsuario(nome){
-//     const tarefa = leTodosUsuarios().filter((usuario)=> {
-//         return usuario.nome !== nome
-//     });
-// }
