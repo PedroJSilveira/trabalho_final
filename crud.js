@@ -10,7 +10,7 @@ const qtdNot = document.querySelector('#qtd-not')
 // Categorias
 const confCat = document.querySelector('#confCat')
 const formCat = document.querySelector('#form-categoria')
-const listCat = document.querySelector('.list-group')
+const listCat = document.querySelector('#conf-cat')
 const nomeCat = document.querySelector('#nome')
 const corCat = document.querySelector('#cores')
 const formEdCat = document.querySelector('#form-ed-categoria')
@@ -61,7 +61,7 @@ const getCat = () => JSON.parse(localStorage.getItem('dbCat')) ?? []
 const setCat = (dbCat) =>  localStorage.setItem("dbCat", JSON.stringify(dbCat))
 
 formCat.addEventListener('submit', (e) => {
-    createCat({nome: nomeCat.value, cor: corCat.value})
+    createCat({nome: nomeCat.value, cor: corCat.value, user: `${usuario}`})
 
     mostraCategorias()
     formCat.reset() 
@@ -77,6 +77,20 @@ const createCat = (categoria) => {
 // Read
 const readCategorias = () => getCat()
 
+let categExists = []
+
+if(readCategorias().length == 0){
+    createCat({nome: 'Sem Categoria', cor: 'grey', user: 'Todos'})
+}else{
+    for(let catExt of readCategorias()){
+        categExists.push(catExt.nome)
+    }
+
+    if(!(categExists.includes('Sem Categoria'))){
+        createCat({nome: 'Sem Categoria', cor: 'grey', user: 'Todos'})
+    }
+}
+
 confCat.addEventListener('click', (e) => {
     mostraCategorias()
 })
@@ -84,9 +98,9 @@ confCat.addEventListener('click', (e) => {
 function mostraCategorias(){
     listCat.innerHTML = ''
     let categorias = ''
-
+    console.log(usuario)
     for(let categoria of readCategorias()){
-        if(categoria.nome != 'Sem Categoria'){
+        if(categoria.nome != 'Sem Categoria' && categoria.user == usuario){
             categorias = categorias + `<button type="button" style="background-color: ${categoria.cor}; display: flex;" class="list-group-item list-group-item-action"><span data-bs-toggle="modal" data-bs-target="#edCategoriaModal" class="editar" onclick="formUpCat('${categoria.nome}')"><i class="fa-sharp fa-solid fa-pen"></i></span><span class="lixo" onclick="apagaCategoria('${categoria.nome}')"><i class="fa-sharp fa-solid fa-trash"></i></span>${categoria.nome}</button>`
         }
     }
@@ -117,7 +131,8 @@ formEdCat.addEventListener('submit', (e) => {
 
     const newCat = {
         nome: edNomeCat.value,
-        cor: edCorCat.value
+        cor: edCorCat.value,
+        user: usuario
     }
 
 
@@ -138,8 +153,6 @@ function atualizaCategoria(nome, newCat){
 
 //Delete
 function apagaCategoria(nome){
-    let teste = 'Sem Cat'
-    console.log(teste.trim())
 
     for(let trf of readTasks()){
         console.log(trf.categoria)
@@ -154,7 +167,6 @@ function apagaCategoria(nome){
                 criador: trf.criador,
                 concluida: trf.concluida
             }
-            console.log('sem cat')
             atualizaTarefa(trf.nome, newTask)
         }
     }
@@ -201,7 +213,9 @@ function carregaCategorias(tipo){
     div.innerHTML = ''
     let cats = '<option selected disabled value="">Escolha...</option>'
     for(let categoria of readCategorias()){
-        cats = cats + `<option value="${categoria.nome} ">${categoria.nome}</option>`
+        if(categoria.user == usuario || categoria.user == 'Todos'){
+            cats = cats + `<option value="${categoria.nome} ">${categoria.nome}</option>`
+        }
     }
    
     div.innerHTML = cats
@@ -216,7 +230,9 @@ function mostraTarefas(){
     nConcluidas = ''
     let dadosPrazo = ''
     for(let tarefa of readTasks()){
-        if(tarefa.concluida == false){
+        let user_permissao = tarefa.permissao.split(";")
+
+        if(tarefa.concluida == false && (tarefa.criador == usuario) || user_permissao.includes(usuario)){
             dadosPrazo = verificaPrazo(tarefa.prazo)
             nConcluidas = nConcluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${tarefa.nome}</h5><span class="badge rounded-pill ${corPrioridade(tarefa.prioridade)}">${tarefa.prioridade}</span><p class="card-text">${tarefa.desc}</p><div class="flags"><span class="badge rounded-pill ${dadosPrazo.cor}">${tarefa.prazo} | ${dadosPrazo.msg}</span><span class="badge rounded-pill" style="background-color: ${corCategoria(tarefa.categoria)}">${tarefa.categoria}</span></div><div class="botoes"><a href="#" class="btn btn-success" onclick="concluida('${tarefa.nome}')">Finalizar</a><a data-bs-toggle="modal" data-bs-target="#editarModal" href="#" class="btn btn-primary" onclick="formUpTarefa('${tarefa.nome}'); carregaCategorias('editar')">Editar</a><a href="#" class="btn btn-danger" onclick="apagaTarefa('${tarefa.nome}')">Excluir</a></div></div></div>`
         }
@@ -299,7 +315,8 @@ function mostraConcluidas(){
     divTarefaConcluida.innerHTML = ''
     concluidas = ''
     for(let con of readTasks()){
-        if(con.concluida == true){
+        let user_permissao = con.permissao.split(";")
+        if(con.concluida == true && (con.criador == usuario || user_permissao.includes(usuario))){
             concluidas = concluidas + `<div class="d-flex card" style="width: 18rem;"> <div class="card-body"><h5 class="card-title">${con.nome}</h5><span class="badge rounded-pill text-bg-primary">${con.categoria}</span><p class="card-text">${con.desc}</p><a href="#" class="btn btn-success" onclick="voltar('${con.nome}')">Voltar</a></div></div>`
         }
     }
@@ -336,7 +353,6 @@ function concluida(nome){
 
 function formUpTarefa(nome) {
     let tarefa = readTasks().filter(tarefaAtual => tarefaAtual.nome == nome)
-
 
     edTarefa.innerText = tarefa[0].nome
     tituloEd.value = tarefa[0].nome
