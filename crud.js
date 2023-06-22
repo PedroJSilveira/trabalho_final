@@ -36,6 +36,8 @@ const permEd = document.querySelector('#permissaoEd')
 const catEd = document.querySelector('#categoriaEd')
 const criadorEd = document.querySelector('#criadorEd')
 
+// Relatório
+const relatorio = document.querySelector('#relatorio')
 
 // Nome do usuário 
 const logado = document.querySelector("#logado");
@@ -53,6 +55,68 @@ let notifica = '';
 
 //IMPLEMENTAÇÃO DOS CRUDs
 const db_user = [];
+let dbCat = [];
+
+// Relatório
+relatorio.addEventListener('click', (e) => {
+    let qtdCon = 0
+    let qtdNCon = 0
+    let qtdCat = 0
+    let tarefaCat = 0
+    let categs = []
+    var today = new Date(Date.now())
+
+    relat = `<h1>Relatório Geral de Tarefas</h1> <br/> <h3>${today}</h3> </br></br><p>Nome: ${usuario}<p> </br><hr></br>`
+
+    const options = {
+        margin: [10, 10, 10, 10],
+        filename: "Relatório.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait"}
+    }
+
+    // Quantidade de Categorias
+    for (let categ of readCategorias()){
+        qtdCat++
+        categs.push(categ.nome)
+    }
+
+    relat = relat + `<h4>Informações Gerais</h4><p>Quantidade de categorias: ${qtdCat}</p> </br>`
+
+    // Quantidade 
+    for(let tarefa of readTasks()){
+        let user_permissao = tarefa.permissao.split(";")
+
+        if(tarefa.concluida == false && (tarefa.criador == usuario) || user_permissao.includes(usuario)){
+            qtdNCon++
+        }
+
+        if(tarefa.concluida == true && (tarefa.criador == usuario) || user_permissao.includes(usuario)){
+            qtdCon++
+        }
+    }
+
+    relat = relat + `<p>Tarefas concluídas: ${qtdCon}</p></br><p>Terefas NÃO concluídas: ${qtdNCon}</p></br> <hr> </br> <h4>Tarefas por categoria</h4> </br>`
+
+    for(let categoria of categs){
+        tarefaCat = 0
+        for(let tarefa of readTasks()){
+            let user_permissao = tarefa.permissao.split(";")
+            
+            console.log(categoria)
+            console.log(tarefa.categoria)
+
+            if(((tarefa.criador == usuario) || user_permissao.includes(usuario)) && tarefa.categoria.trim() == categoria){
+                tarefaCat++
+            }
+        }
+
+        relat = relat + `<p>Quantidade de tarefas na categoria ${categoria}: ${tarefaCat}</p> </br>`
+    }
+
+
+    html2pdf().set(options).from(relat).save()
+})
 
 // CATEGORIAS
 // Create
